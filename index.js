@@ -19,22 +19,42 @@ const server = app.listen(port, () => {
 
 const io = socket(server);
 
-let humibotId = null;
+let robotID = null;
 
 io.on('connect', (socket) => {
    console.log(`user ${socket.id} connected`);
 
+   if (robotID)
+   {
+      io.emit('robot_status', true)
+   }
+
+   socket.on('robot_connect', (val) => {
+      console.log("Robot Connected");
+      robotID = socket.id;
+      io.emit('robot_status', true)
+   })
+
    socket.on('humidities', (val) => {
-      console.log(val);
+      // console.log(val);
       io.emit('humidity_data', val)
    })
 
    socket.on('water_lvl_update', (val) => {
-      console.log(val);
+      // console.log(val);
       io.emit('water_lvl_data', val)
    })
 
    socket.on('disconnect',  () => {
-      console.log(`user ${socket.id} disconnected`);
+      if(socket.id === robotID)
+      {
+         console.log("Robot Disconnected");
+         robotID = null;
+         io.emit('robot_status', false)
+      }
+      else
+      {
+         console.log(`user ${socket.id} disconnected`);
+      }
   });
 })
