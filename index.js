@@ -47,7 +47,7 @@ io.on('connect', (socket) => {
             console.error(`stderr: ${stderr}`);
             return;
          }
-         console.error('SLAM service started.');
+         console.log('SLAM service started.');
 
          exec(start_autonomy_service, (error, stdout, stderr) => {
             if (error) {
@@ -58,7 +58,7 @@ io.on('connect', (socket) => {
                console.error(`stderr: ${stderr}`);
                return;
             }
-            console.error('Autonomy service started.');
+            console.log('Autonomy service started.');
          })
       })
    })
@@ -88,7 +88,7 @@ io.on('connect', (socket) => {
                console.error(`stderr: ${stderr}`);
                return;
            }
-           console.error('SLAM service stopped.');
+           console.log('SLAM service stopped.');
 
            exec(stop_autonomy_service, (error, stdout, stderr) => {
             if (error) {
@@ -99,7 +99,7 @@ io.on('connect', (socket) => {
                console.error(`stderr: ${stderr}`);
                return;
             }
-            console.error('Autonomy service stopped.');
+            console.log('Autonomy service stopped.');
          })
          })
       }
