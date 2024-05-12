@@ -1,9 +1,14 @@
-var express = require('express');
-var socket = require('socket.io');
+const express = require('express');
+const socket = require('socket.io');
+const {exec} = require('child_process');
 
 const port = process.env.PORT || 5000;
 const app = express();
 
+const start_slam_service = "sudo systemctl start robot-slam.service"
+const start_autonomy_service = "sudo systemctl start robot-autonomy.service"
+const stop_slam_service = "sudo systemctl stop robot-slam.service"
+const stop_autonomy_service = "sudo systemctl stop robot-autonomy.service"
 
 app.use(express.static('public'));
 
@@ -33,6 +38,29 @@ io.on('connect', (socket) => {
       console.log("Robot Connected");
       robotID = socket.id;
       io.emit('robot_status', true)
+      exec(start_slam_service, (error, stdout, stderr) => {
+         if (error) {
+            console.error(`error: ${error.message}`);
+            return;
+         }
+         if (stderr) {
+            console.error(`stderr: ${stderr}`);
+            return;
+         }
+         console.error('SLAM service started.');
+
+         exec(start_autonomy_service, (error, stdout, stderr) => {
+            if (error) {
+               console.error(`error: ${error.message}`);
+               return;
+            }
+            if (stderr) {
+               console.error(`stderr: ${stderr}`);
+               return;
+            }
+            console.error('Autonomy service started.');
+         })
+      })
    })
 
    socket.on('humidities', (val) => {
@@ -51,6 +79,29 @@ io.on('connect', (socket) => {
          console.log("Robot Disconnected");
          robotID = null;
          io.emit('robot_status', false)
+         exec(stop_slam_service, (error, stdout, stderr) => {
+            if (error) {
+               console.error(`error: ${error.message}`);
+               return;
+           }
+           if (stderr) {
+               console.error(`stderr: ${stderr}`);
+               return;
+           }
+           console.error('SLAM service stopped.');
+
+           exec(stop_autonomy_service, (error, stdout, stderr) => {
+            if (error) {
+               console.error(`error: ${error.message}`);
+               return;
+            }
+            if (stderr) {
+               console.error(`stderr: ${stderr}`);
+               return;
+            }
+            console.error('Autonomy service stopped.');
+         })
+         })
       }
       else
       {
